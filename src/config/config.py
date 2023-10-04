@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     DATABASE_PASSWORD: str
 
     LOKI_URL: str
+    LOKI_USER: str
+    LOKI_PASSWORD: str
 
 
 settings = Settings()
