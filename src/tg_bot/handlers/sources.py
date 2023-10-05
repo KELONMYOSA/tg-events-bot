@@ -1,9 +1,16 @@
+import logging
+
 from src.tg_bot.utils.dao import PostgreDB
+from src.tg_bot.models.user import User
 
 
 def run(bot):
+    user_logger = logging.getLogger('user_stat')
+
     @bot.message_handler(commands=["sources"])
     async def sources(message):
+        user = User(tg_id=message.from_user.id, tg_username=message.from_user.username, tg_action="sources")
+
         with PostgreDB() as db:
             providers = db.get_providers()
         sources_text = "Список источников:\n"
@@ -17,3 +24,5 @@ def run(bot):
             parse_mode="HTML",
             disable_web_page_preview=True
         )
+
+        user_logger.info(f"sources", extra=user.build_extra())

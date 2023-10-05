@@ -21,12 +21,11 @@ _LOKI_PASSWORD = settings.LOKI_PASSWORD
 
 
 def push_loki(msg):
-    line = log_json_to_line(msg)
     ns = 1e9
     ts = str(int(time.time() * ns))
     stream = {
         "stream": json.loads(msg),
-        "values": [[ts, line]],
+        "values": [[ts, msg]],
     }
     payload = {"streams": [stream]}
 
@@ -124,5 +123,6 @@ def log_json_to_line(msg: str) -> str:
     ex = msg_dict.pop('exceptions', None)
     if ex is not None:
         msg_dict['exceptions'] = str(ex)
+    values = list(map(str, msg_dict.values()))
 
-    return " | ".join(msg_dict.values())
+    return " | ".join(values)
