@@ -1,6 +1,7 @@
 import psycopg2
 
 from src.config.config import settings
+from src.tg_bot.models.dictionaries import topic2domain
 from src.tg_bot.models.event import Event
 from src.tg_bot.models.provider import Provider
 
@@ -42,6 +43,7 @@ class PostgreDB:
     def db_insert(self, query: str):
         try:
             self.cursor.execute(query)
+            self.connection.commit()
         except (Exception, psycopg2.Error) as error:
             print("Ошибка при работе с PostgreSQL", error)
             return None
@@ -81,7 +83,19 @@ class PostgreDB:
         return events
 
     def get_providers(self) -> list[Provider]:
-        provider_result = self.db_select("SELECT * FROM provider")
+        domains = list(topic2domain.values())
+
+        domain_formatted = []
+        for domain in domains:
+            domain_formatted.append(f"'{domain}'")
+        domains_str = ','.join(domain_formatted)
+
+        domain_result = self.db_select(f"SELECT id FROM domain WHERE name IN ({domains_str})")
+        domain_ids = [row[0] for row in domain_result]
+        provider_id_result = self.db_select(f"SELECT p_id FROM provider_domain WHERE d_id IN ({str(domain_ids)[1:-1]})")
+        provider_ids = [row[0] for row in provider_id_result]
+
+        provider_result = self.db_select(f"SELECT * FROM provider WHERE id IN ({str(provider_ids)[1:-1]})")
         providers = []
         for provider in provider_result:
             providers.append(Provider(
@@ -96,3 +110,39 @@ class PostgreDB:
                 active=provider[8]
             ))
         return providers
+
+    def get_user_domains(self, user_id: int) -> list[str]:
+        domain_result = self.db_select(f"SELECT d_id FROM \"user\".\"tg_user_domain\" WHERE u_id = {user_id}")
+        domain_ids = [row[0] for row in domain_result]
+        if not domain_ids:
+            return []
+        domain_name_result = self.db_select(f"SELECT name FROM domain WHERE id IN ({str(domain_ids)[1:-1]})")
+        domain_name = [row[0] for row in domain_name_result]
+
+        return domain_name
+
+    def set_user_domains(self, user_id: int, domains: list[str]):
+        self.db_insert(f"DELETE FROM \"user\".\"tg_user_domain\" WHERE u_id = {user_id}")
+        for domain in domains:
+            domain_id = self.db_select(f"SELECT id FROM domain WHERE name = '{domain}'")[0][0]
+            self.db_insert(f"INSERT INTO \"user\".\"tg_user_domain\" (u_id, d_id) VALUES ({user_id}, {domain_id})")
+
+    def set_push_interval(self, user_id: int, interval: int):
+        self.db_insert(f"INSERT INTO \"user\".\"tg_notification\" (u_id, interval) VALUES ({user_id}, {interval}) "
+                       f"ON CONFLICT (u_id) DO UPDATE SET interval = {interval}")
+
+    def set_user(self, user_id: int, username: str):
+        self.db_insert(f"INSERT INTO \"user\".\"tg_user\" (id, username) VALUES ({user_id}, '{username}') "
+                       f"ON CONFLICT (id) DO NOTHING")
+
+    def get_user_providers(self, user_id: int) -> list[int]:
+        provider_result = self.db_select(f"SELECT p_id FROM \"user\".\"tg_user_provider\" WHERE u_id = {user_id}")
+        provider_ids = [row[0] for row in provider_result]
+
+        return provider_ids
+
+    def set_user_providers(self, user_id: int, p_ids: list[int]):
+        self.db_insert(f"DELETE FROM \"user\".\"tg_user_provider\" WHERE u_id = {user_id}")
+
+        for p_id in p_ids:
+            self.db_insert(f"INSERT INTO \"user\".\"tg_user_provider\" (u_id, p_id) VALUES ({user_id}, {p_id})")

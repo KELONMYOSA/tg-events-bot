@@ -1,18 +1,18 @@
 from telebot.types import CallbackQuery
 
-from src.tg_bot.models.dictionaries import topic2domain, topic2pre_speech
+from src.tg_bot.models.dictionaries import topic2domain, topic2name
 from src.tg_bot.models.event_message import EventMessage
 from src.tg_bot.models.pagination_keyboard import PaginationKeyboard
 from src.tg_bot.utils.dao import PostgreDB
 
 
 def run(bot):
-    @bot.message_handler(commands=["expo", "party", "standup"])
+    @bot.message_handler(commands=["edu", "money", "career", "fun", "sport", "other"])
     async def get_events_by_topic(message):
         topic = message.text[1:]
 
         domain = topic2domain[topic]
-        pre_speech = topic2pre_speech[topic]
+        pre_speech = f"{topic2name[topic]}:"
 
         with PostgreDB() as db:
             event_ids = db.get_event_ids_by_domain_name(domain)
@@ -41,7 +41,7 @@ def run(bot):
 
         topic = call.data.split("|")[0].split("/")[1]
         domain = topic2domain[topic]
-        pre_speech = topic2pre_speech[topic]
+        pre_speech = f"{topic2name[topic]}:"
 
         with PostgreDB() as db:
             event_ids = db.get_event_ids_by_domain_name(domain)

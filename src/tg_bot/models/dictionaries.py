@@ -24,13 +24,19 @@ days_map = {
 }
 
 topic2domain = {
-    "expo": "expo",
-    "party": "party",
-    "standup": "standup",
+    "edu": "itmo_edu",
+    "money": "itmo_money",
+    "career": "itmo_career",
+    "fun": "itmo_fun",
+    "sport": "itmo_sport",
+    "other": "itmo_other",
 }
 
-topic2pre_speech = {
-    "expo": "Выставки:",
-    "party": "Вечеринки:",
-    "standup": "StandUp:",
+topic2name = {
+    "edu": "Образование",
+    "money": "Бизнес, инновации",
+    "career": "Карьера",
+    "fun": "Развлечения",
+    "sport": "Спорт",
+    "other": "Остальное",
 }
