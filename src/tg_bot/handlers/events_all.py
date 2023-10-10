@@ -1,14 +1,21 @@
+import logging
+
 from telebot.types import CallbackQuery, Message
 
 from src.tg_bot.models.dictionaries import topic2domain
 from src.tg_bot.models.event_message import EventMessage
 from src.tg_bot.models.pagination_keyboard import PaginationKeyboard
+from src.tg_bot.models.user import User
 from src.tg_bot.utils.dao import PostgreDB
 
 
 def run(bot):
+    user_logger = logging.getLogger('user_stat')
+
     @bot.message_handler(commands=["all"])
     async def get_events_all(message: Message):
+        user = User(tg_id=message.from_user.id, tg_username=message.from_user.username, tg_action="events_all")
+
         domains = list(topic2domain.values())
         pre_speech = "Все мероприятия:"
 
@@ -33,9 +40,13 @@ def run(bot):
                 reply_markup=event_message.create_keyboard(f"EventsAll")
             )
 
+        user_logger.info(f"get all events", extra=user.build_extra())
+
     @bot.callback_query_handler(func=lambda call: call.data.startswith("EventsAll"))
     async def events_all_pagination(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
+
+        user = User(tg_id=call.from_user.id, tg_username=call.from_user.username, tg_action="events_all_pagination")
 
         domains = list(topic2domain.values())
         pre_speech = "Все мероприятия:"
@@ -55,3 +66,5 @@ def run(bot):
             disable_web_page_preview=True,
             reply_markup=event_message.change_keyboard_page(call.data)
         )
+
+        user_logger.info(f"change all events page", extra=user.build_extra())

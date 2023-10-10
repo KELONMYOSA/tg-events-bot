@@ -33,16 +33,20 @@ def run(bot):
             reply_markup=settings_keyboard
         )
 
-        # user_logger.info(f"settings command", extra=user.build_extra())
+        user_logger.info(f"settings command", extra=user.build_extra())
 
     @bot.callback_query_handler(func=lambda call: call.data == "SettingsNotification")
     async def settings_notifications(call: CallbackQuery):
+        user = User(tg_id=call.from_user.id, tg_username=call.from_user.username, tg_action="settings_notification")
+
         await bot.delete_message(call.message.chat.id, call.message.message_id)
         await bot.send_message(
             call.message.chat.id,
             "Выберите, как часто получать уведомления о мероприятиях:",
             reply_markup=notification_interval_keyboard("SettingsNotification")
         )
+
+        user_logger.info(f"change notification schedule", extra=user.build_extra())
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("SettingsNotification|"))
     async def settings_notifications_ok(call: CallbackQuery):
@@ -61,6 +65,8 @@ def run(bot):
 
     @bot.callback_query_handler(func=lambda call: call.data == "SettingsDomain")
     async def settings_domain(call: CallbackQuery):
+        user = User(tg_id=call.from_user.id, tg_username=call.from_user.username, tg_action="settings_domain")
+
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)
 
@@ -69,6 +75,8 @@ def run(bot):
             "Выберите тематики, которые Вам интересны:",
             reply_markup=domain_selection_keyboard(call.from_user.id, "SettingsDomain")
         )
+
+        user_logger.info(f"change user domains", extra=user.build_extra())
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("SettingsDomain|select|"))
     async def settings_domain_selection(call: CallbackQuery):
@@ -108,14 +116,18 @@ def run(bot):
 
     @bot.callback_query_handler(func=lambda call: call.data == "SettingsProvider")
     async def settings_provider(call: CallbackQuery):
+        user = User(tg_id=call.from_user.id, tg_username=call.from_user.username, tg_action="settings_provider")
+
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)
 
         await bot.send_message(
             call.message.chat.id,
-            "Выберите тематики, которые Вам интересны:",
+            "Выберите источники, мероприятия из которых Вы хотели бы видеть:",
             reply_markup=provider_selection_keyboard(call.from_user.id, "SettingsDomain")
         )
+
+        user_logger.info(f"change user providers", extra=user.build_extra())
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("SettingsProvider|select|"))
     async def settings_provider_selection(call: CallbackQuery):
@@ -160,5 +172,9 @@ def run(bot):
 
     @bot.callback_query_handler(func=lambda call: call.data == "SettingsCancel")
     async def settings_cancel(call: CallbackQuery):
+        user = User(tg_id=call.from_user.id, tg_username=call.from_user.username, tg_action="settings_cancel")
+
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)
+
+        user_logger.info(f"cancel settings selection", extra=user.build_extra())

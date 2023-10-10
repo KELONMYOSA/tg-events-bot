@@ -13,6 +13,8 @@ from src.tg_bot import handlers
 
 dictConfig(LOG_CONFIG)
 logger = logging.getLogger('default')
+loki_handler = next((x for x in logger.handlers if x.name == "loki"), None)
+logging.getLogger("TeleBot").addHandler(loki_handler)
 
 bot = AsyncTeleBot(settings.BOT_TOKEN)
 

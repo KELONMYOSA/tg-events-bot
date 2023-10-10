@@ -28,7 +28,7 @@ def run(bot):
             reply_markup=domain_selection_keyboard(message.from_user.id, "StartUserDomains")
         )
 
-        # user_logger.info(f"new user", extra=user.build_extra())
+        user_logger.info(f"new user", extra=user.build_extra())
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("StartUserDomains|select|"))
     async def change_select_button(call: CallbackQuery):
@@ -41,6 +41,8 @@ def run(bot):
 
     @bot.callback_query_handler(func=lambda call: "StartUserDomains|ok" == call.data)
     async def set_domains_and_ask_notif(call: CallbackQuery):
+        user = User(tg_id=call.from_user.id, tg_username=call.from_user.username, tg_action="start_domain")
+
         msg_keyboard = call.message.reply_markup
         selected_texts = CheckboxKeyboard.get_selected_buttons(msg_keyboard)
 
@@ -72,8 +74,12 @@ def run(bot):
                 reply_markup=notification_interval_keyboard("StartNotification")
             )
 
+            user_logger.info(f"new user configured domains", extra=user.build_extra())
+
     @bot.callback_query_handler(func=lambda call: call.data.startswith("StartNotification|"))
     async def set_notifications_and_say_hello(call: CallbackQuery):
+        user = User(tg_id=call.from_user.id, tg_username=call.from_user.username, tg_action="start_notification")
+
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)
 
@@ -108,3 +114,5 @@ def run(bot):
 А также посмотреть список источников - /sources
             """
         )
+
+        user_logger.info(f"new user configured notification schedule", extra=user.build_extra())

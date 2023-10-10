@@ -27,4 +27,4 @@ def run(bot):
             disable_web_page_preview=True
         )
 
-        user_logger.info(f"sources", extra=user.build_extra())
+        user_logger.info(f"get sources list", extra=user.build_extra())

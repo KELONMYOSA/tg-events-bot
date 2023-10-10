@@ -1,13 +1,20 @@
+import logging
+
 from telebot.types import Message, CallbackQuery
 
 from src.tg_bot.models.event_message import EventMessage
 from src.tg_bot.models.pagination_keyboard import PaginationKeyboard
+from src.tg_bot.models.user import User
 from src.tg_bot.utils.dao import PostgreDB
 
 
 def run(bot):
+    user_logger = logging.getLogger('user_stat')
+
     @bot.message_handler(commands=["my"])
     async def get_my_topic(message: Message):
+        user = User(tg_id=message.from_user.id, tg_username=message.from_user.username, tg_action="events_my")
+
         with PostgreDB() as db:
             domains = db.get_user_domains(message.from_user.id)
             event_ids = db.get_event_ids_by_domain_names(domains)
@@ -32,9 +39,13 @@ def run(bot):
                 reply_markup=event_message.create_keyboard(f"EventsMy")
             )
 
+        user_logger.info(f"get my events", extra=user.build_extra())
+
     @bot.callback_query_handler(func=lambda call: call.data.startswith("EventsMy"))
     async def events_my_pagination(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
+
+        user = User(tg_id=call.from_user.id, tg_username=call.from_user.username, tg_action="events_my_pagination")
 
         with PostgreDB() as db:
             domains = db.get_user_domains(call.from_user.id)
@@ -54,3 +65,5 @@ def run(bot):
             disable_web_page_preview=True,
             reply_markup=event_message.change_keyboard_page(call.data)
         )
+
+        user_logger.info(f"change my events page", extra=user.build_extra())

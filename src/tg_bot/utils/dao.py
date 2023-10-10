@@ -1,3 +1,5 @@
+import logging
+
 import psycopg2
 
 from src.config.config import settings
@@ -17,6 +19,7 @@ class PostgreDB:
             port=settings.DATABASE_PORT
         )
         self.cursor = self.connection.cursor()
+        self.logger = logging.getLogger('default')
 
     def __enter__(self):
         return self
@@ -25,7 +28,7 @@ class PostgreDB:
     def __exit__(self, ext_type, exc_value, traceback):
         self.cursor.close()
         if isinstance(exc_value, Exception):
-            print(exc_value)
+            self.logger.error(f"error while closing PostgreSQL connection", exc_info=exc_value)
             self.connection.rollback()
         else:
             self.connection.commit()
@@ -37,7 +40,7 @@ class PostgreDB:
             result = self.cursor.fetchall()
             return result
         except (Exception, psycopg2.Error) as error:
-            print("Ошибка при работе с PostgreSQL", error)
+            self.logger.error(f"query error from PostgreSQL", exc_info=error)
             return None
 
     def db_insert(self, query: str):
@@ -45,7 +48,7 @@ class PostgreDB:
             self.cursor.execute(query)
             self.connection.commit()
         except (Exception, psycopg2.Error) as error:
-            print("Ошибка при работе с PostgreSQL", error)
+            self.logger.error(f"query error from PostgreSQL", exc_info=error)
             return None
 
     @staticmethod
