@@ -1,6 +1,6 @@
 import logging
 
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 
 from src.tg_bot.models.checkbox_keyboard import CheckboxKeyboard
 from src.tg_bot.models.dictionaries import topic2domain, topic2name
@@ -14,7 +14,7 @@ def run(bot):
     user_logger = logging.getLogger('user_stat')
 
     @bot.message_handler(commands=["settings"])
-    async def settings(message):
+    async def settings(message: Message):
         user = User(tg_id=message.from_user.id, tg_username=message.from_user.username, tg_action="settings")
 
         await bot.delete_message(message.chat.id, message.message_id)
@@ -36,7 +36,7 @@ def run(bot):
         # user_logger.info(f"settings command", extra=user.build_extra())
 
     @bot.callback_query_handler(func=lambda call: call.data == "SettingsNotification")
-    async def settings_notifications(call):
+    async def settings_notifications(call: CallbackQuery):
         await bot.delete_message(call.message.chat.id, call.message.message_id)
         await bot.send_message(
             call.message.chat.id,
@@ -45,7 +45,7 @@ def run(bot):
         )
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("SettingsNotification|"))
-    async def settings_notifications_ok(call):
+    async def settings_notifications_ok(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)
 
@@ -60,7 +60,7 @@ def run(bot):
         )
 
     @bot.callback_query_handler(func=lambda call: call.data == "SettingsDomain")
-    async def settings_domain(call):
+    async def settings_domain(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)
 
@@ -71,7 +71,7 @@ def run(bot):
         )
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("SettingsDomain|select|"))
-    async def settings_domain_selection(call):
+    async def settings_domain_selection(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
 
         keyboard = call.message.reply_markup
@@ -80,7 +80,7 @@ def run(bot):
         await bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=keyboard)
 
     @bot.callback_query_handler(func=lambda call: "SettingsDomain|ok" == call.data)
-    async def settings_domain_ok(call):
+    async def settings_domain_ok(call: CallbackQuery):
         msg_keyboard = call.message.reply_markup
         selected_texts = CheckboxKeyboard.get_selected_buttons(msg_keyboard)
 
@@ -107,7 +107,7 @@ def run(bot):
             )
 
     @bot.callback_query_handler(func=lambda call: call.data == "SettingsProvider")
-    async def settings_provider(call):
+    async def settings_provider(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)
 
@@ -118,7 +118,7 @@ def run(bot):
         )
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("SettingsProvider|select|"))
-    async def settings_provider_selection(call):
+    async def settings_provider_selection(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
 
         keyboard = call.message.reply_markup
@@ -127,7 +127,7 @@ def run(bot):
         await bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=keyboard)
 
     @bot.callback_query_handler(func=lambda call: "SettingsProvider|ok" == call.data)
-    async def settings_provider_ok(call):
+    async def settings_provider_ok(call: CallbackQuery):
         msg_keyboard = call.message.reply_markup
         selected_texts = CheckboxKeyboard.get_selected_buttons(msg_keyboard)
 
@@ -159,6 +159,6 @@ def run(bot):
             )
 
     @bot.callback_query_handler(func=lambda call: call.data == "SettingsCancel")
-    async def settings_cancel(call):
+    async def settings_cancel(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)

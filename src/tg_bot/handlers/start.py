@@ -1,5 +1,7 @@
 import logging
 
+from telebot.types import Message, CallbackQuery
+
 from src.tg_bot.models.checkbox_keyboard import CheckboxKeyboard
 from src.tg_bot.models.dictionaries import topic2name, topic2domain
 from src.tg_bot.models.user import User
@@ -12,7 +14,7 @@ def run(bot):
     user_logger = logging.getLogger('user_stat')
 
     @bot.message_handler(commands=["start"])
-    async def start_bot(message):
+    async def start_bot(message: Message):
         user = User(tg_id=message.from_user.id, tg_username=message.from_user.username, tg_action="start")
 
         await bot.delete_message(message.chat.id, message.message_id)
@@ -29,7 +31,7 @@ def run(bot):
         # user_logger.info(f"new user", extra=user.build_extra())
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("StartUserDomains|select|"))
-    async def change_select_button(call):
+    async def change_select_button(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
 
         keyboard = call.message.reply_markup
@@ -38,7 +40,7 @@ def run(bot):
         await bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=keyboard)
 
     @bot.callback_query_handler(func=lambda call: "StartUserDomains|ok" == call.data)
-    async def set_domains_and_ask_notif(call):
+    async def set_domains_and_ask_notif(call: CallbackQuery):
         msg_keyboard = call.message.reply_markup
         selected_texts = CheckboxKeyboard.get_selected_buttons(msg_keyboard)
 
@@ -71,7 +73,7 @@ def run(bot):
             )
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("StartNotification|"))
-    async def set_notifications_and_say_hello(call):
+    async def set_notifications_and_say_hello(call: CallbackQuery):
         await bot.answer_callback_query(call.id)
         await bot.delete_message(call.message.chat.id, call.message.message_id)
 

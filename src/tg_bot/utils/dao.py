@@ -48,9 +48,20 @@ class PostgreDB:
             print("Ошибка при работе с PostgreSQL", error)
             return None
 
-    def get_event_ids_by_domain_name(self, domain_name: str) -> list[int]:
-        domain_id = self.db_select(f"SELECT id FROM domain WHERE name = '{domain_name}'")[0][0]
-        event_ids = self.db_select(f"SELECT e_id FROM event_domain WHERE d_id = {domain_id}")
+    @staticmethod
+    def list_of_str_to_query_str(str_list: list[str]) -> str:
+        formatted = []
+        for s in str_list:
+            formatted.append(f"'{s}'")
+        return ','.join(formatted)
+
+    def get_event_ids_by_domain_names(self, domain_names: list[str]) -> list[int]:
+        domains_str = self.list_of_str_to_query_str(domain_names)
+
+        domain_result = self.db_select(f"SELECT id FROM domain WHERE name IN ({domains_str})")
+        domain_ids = [row[0] for row in domain_result]
+
+        event_ids = self.db_select(f"SELECT e_id FROM event_domain WHERE d_id IN ({str(domain_ids)[1:-1]})")
         result = []
         for event_id in event_ids:
             result.extend(event_id)
@@ -84,11 +95,7 @@ class PostgreDB:
 
     def get_providers(self) -> list[Provider]:
         domains = list(topic2domain.values())
-
-        domain_formatted = []
-        for domain in domains:
-            domain_formatted.append(f"'{domain}'")
-        domains_str = ','.join(domain_formatted)
+        domains_str = self.list_of_str_to_query_str(domains)
 
         domain_result = self.db_select(f"SELECT id FROM domain WHERE name IN ({domains_str})")
         domain_ids = [row[0] for row in domain_result]
