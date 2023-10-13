@@ -124,7 +124,7 @@ def run(bot):
         await bot.send_message(
             call.message.chat.id,
             "Выберите источники, мероприятия из которых Вы хотели бы видеть:",
-            reply_markup=provider_selection_keyboard(call.from_user.id, "SettingsDomain")
+            reply_markup=provider_selection_keyboard(call.from_user.id, "SettingsProvider")
         )
 
         user_logger.info(f"change user providers", extra=user.build_extra())

@@ -3,7 +3,6 @@ import logging
 import psycopg2
 
 from src.config.config import settings
-from src.tg_bot.models.dictionaries import topic2domain
 from src.tg_bot.models.event import Event
 from src.tg_bot.models.provider import Provider
 
@@ -68,12 +67,14 @@ class PostgreDB:
         result = []
         for event_id in event_ids:
             result.extend(event_id)
+        result = list(set(result))
         return result
 
     def get_events_by_ids(self, event_ids: list[int]) -> list[Event]:
         events_result = self.db_select(f"SELECT * FROM event "
-                                       f"WHERE id IN ({str(event_ids)[1:-1]}) AND date >= CURRENT_DATE "
-                                       f"ORDER BY date")
+                                       f"WHERE id IN ({str(event_ids)[1:-1]}) AND time_b >= CURRENT_DATE "
+                                       f"AND active = true "
+                                       f"ORDER BY time_b")
         events = []
         for event in events_result:
             events.append(Event(
@@ -97,7 +98,7 @@ class PostgreDB:
         return events
 
     def get_providers(self) -> list[Provider]:
-        domains = list(topic2domain.values())
+        domains = ["itmo"]
         domains_str = self.list_of_str_to_query_str(domains)
 
         domain_result = self.db_select(f"SELECT id FROM domain WHERE name IN ({domains_str})")

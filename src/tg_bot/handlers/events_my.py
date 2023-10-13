@@ -2,6 +2,7 @@ import logging
 
 from telebot.types import Message, CallbackQuery
 
+from src.tg_bot.models.dictionaries import topic2domain
 from src.tg_bot.models.event_message import EventMessage
 from src.tg_bot.models.pagination_keyboard import PaginationKeyboard
 from src.tg_bot.models.user import User
@@ -17,6 +18,8 @@ def run(bot):
 
         with PostgreDB() as db:
             domains = db.get_user_domains(message.from_user.id)
+            if not domains:
+                domains = list(topic2domain.values())
             event_ids = db.get_event_ids_by_domain_names(domains)
             events = db.get_events_by_ids(event_ids)
 
@@ -49,6 +52,8 @@ def run(bot):
 
         with PostgreDB() as db:
             domains = db.get_user_domains(call.from_user.id)
+            if not domains:
+                domains = list(topic2domain.values())
             event_ids = db.get_event_ids_by_domain_names(domains)
             events = db.get_events_by_ids(event_ids)
 

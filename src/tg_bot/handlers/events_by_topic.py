@@ -39,7 +39,7 @@ def run(bot):
                 pre_speech + "\n\n" + event_message.get_message_text(0),
                 parse_mode="HTML",
                 disable_web_page_preview=True,
-                reply_markup=event_message.create_keyboard(f"EventsByTopic/{domain}")
+                reply_markup=event_message.create_keyboard(f"EventsByTopic/{topic}")
             )
 
         user_logger.info(f"get events by topic", extra=user.build_extra())
