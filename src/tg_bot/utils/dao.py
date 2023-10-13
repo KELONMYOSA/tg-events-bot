@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import psycopg2
 
@@ -148,6 +149,13 @@ class PostgreDB:
     def set_push_interval(self, user_id: int, interval: int):
         self.db_insert(f"INSERT INTO \"user\".\"tg_notification\" (u_id, interval) VALUES ({user_id}, {interval}) "
                        f"ON CONFLICT (u_id) DO UPDATE SET interval = {interval}")
+
+    def set_next_push_date(self, user_id: int, next_push_date: datetime):
+        self.db_insert(f"UPDATE \"user\".\"tg_notification\" SET next_push_date = TIMESTAMP '{next_push_date}' "
+                       f"WHERE u_id = {user_id}")
+
+    def get_notification_data(self):
+        return self.db_select(f"SELECT * FROM \"user\".\"tg_notification\"")
 
     def set_user(self, user_id: int, username: str):
         self.db_insert(f"INSERT INTO \"user\".\"tg_user\" (id, username) VALUES ({user_id}, '{username}') "

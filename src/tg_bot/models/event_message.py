@@ -6,7 +6,7 @@ from src.tg_bot.utils.calendar import make_google_cal_url
 
 
 class EventMessage:
-    def __init__(self, events: list[Event] | Event, is_digest: bool = True, events_on_page: int = 5):
+    def __init__(self, events: list[Event] | Event, is_digest: bool = True, events_on_page: int = 4):
         self._events = events if type(events) is list else [events]
         self._events_on_page = events_on_page
         self._event_pages = self.__splitting_events_into_pages(self._events, self._events_on_page)

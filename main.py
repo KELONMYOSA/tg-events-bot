@@ -4,12 +4,14 @@ import pkgutil
 import asyncio
 
 from logging.config import dictConfig
+from threading import Thread
 
 from telebot.async_telebot import AsyncTeleBot
 
 from src.config.config import settings
 from src.config.log_config import LOG_CONFIG
 from src.tg_bot import handlers
+from src.tg_bot.utils.push_events import schedule_push_events
 
 dictConfig(LOG_CONFIG)
 logger = logging.getLogger('default')
@@ -22,6 +24,9 @@ try:
     for x in pkgutil.iter_modules(handlers.__path__):
         handler = importlib.import_module("src.tg_bot.handlers." + x.name)
         handler.run(bot)
+
+    thread = Thread(target=schedule_push_events)
+    thread.start()
 
     logger.info("ITMO Events TG Bot Started")
     asyncio.run(bot.polling())
