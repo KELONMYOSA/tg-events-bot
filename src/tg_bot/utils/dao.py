@@ -70,6 +70,13 @@ class PostgreDB:
         result = list(set(result))
         return result
 
+    def get_event_ids_by_provider_ids(self, provider_ids: list[int]) -> list[int]:
+        event_ids = self.db_select(f"SELECT id FROM event WHERE p_id IN ({str(provider_ids)[1:-1]})")
+        result = []
+        for event_id in event_ids:
+            result.extend(event_id)
+        return result
+
     def get_events_by_ids(self, event_ids: list[int]) -> list[Event]:
         events_result = self.db_select(f"SELECT * FROM event "
                                        f"WHERE id IN ({str(event_ids)[1:-1]}) AND time_b >= CURRENT_DATE "

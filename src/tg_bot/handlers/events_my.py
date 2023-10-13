@@ -20,7 +20,14 @@ def run(bot):
             domains = db.get_user_domains(message.from_user.id)
             if not domains:
                 domains = list(topic2domain.values())
-            event_ids = db.get_event_ids_by_domain_names(domains)
+            event_ids_d = db.get_event_ids_by_domain_names(domains)
+
+            provider_ids = db.get_user_providers(message.from_user.id)
+            if not provider_ids:
+                provider_ids = [provider.id for provider in db.get_providers()]
+            event_ids_p = db.get_event_ids_by_provider_ids(provider_ids)
+
+            event_ids = list(set(event_ids_d) & set(event_ids_p))
             events = db.get_events_by_ids(event_ids)
 
         pre_speech = "Моя подборка:"
@@ -54,7 +61,14 @@ def run(bot):
             domains = db.get_user_domains(call.from_user.id)
             if not domains:
                 domains = list(topic2domain.values())
-            event_ids = db.get_event_ids_by_domain_names(domains)
+            event_ids_d = db.get_event_ids_by_domain_names(domains)
+
+            provider_ids = db.get_user_providers(call.from_user.id)
+            if not provider_ids:
+                provider_ids = [provider.id for provider in db.get_providers()]
+            event_ids_p = db.get_event_ids_by_provider_ids(provider_ids)
+
+            event_ids = list(set(event_ids_d) & set(event_ids_p))
             events = db.get_events_by_ids(event_ids)
 
         pre_speech = "Моя подборка:"
