@@ -79,9 +79,9 @@ class PostgreDB:
 
     def get_events_by_ids(self, event_ids: list[int]) -> list[Event]:
         events_result = self.db_select(f"SELECT * FROM event "
-                                       f"WHERE id IN ({str(event_ids)[1:-1]}) AND time_b >= CURRENT_DATE "
+                                       f"WHERE id IN ({str(event_ids)[1:-1]}) AND date_b >= CURRENT_DATE "
                                        f"AND active = true "
-                                       f"ORDER BY time_b")
+                                       f"ORDER BY date_b")
         events = []
         for event in events_result:
             events.append(Event(

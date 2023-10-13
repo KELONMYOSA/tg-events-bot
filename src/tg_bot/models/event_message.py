@@ -2,6 +2,7 @@ from telebot.types import InlineKeyboardMarkup
 
 from src.tg_bot.models.event import Event
 from src.tg_bot.models.pagination_keyboard import PaginationKeyboard
+from src.tg_bot.utils.calendar import make_google_cal_url
 
 
 class EventMessage:
@@ -21,11 +22,13 @@ class EventMessage:
         message_text = ""
         for event in events:
             place_text = ('\n📍 ' + event.place) if event.place else ''
+            event_date_link = make_google_cal_url(event)
             message_text += \
                 f"\n\n🦄️ <a href='{event.url}'>{event.title}</a>" \
                 f"\n🗓 {event.get_date_string()}" \
                 f"{place_text}" \
-                f"\n{event.short_desc}"
+                f"\n{event.short_desc}" \
+                f"\n<a href='{event_date_link}'>Добавить в календарь -></a>"
 
         message_text = message_text[2:]
 
