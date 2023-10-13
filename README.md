@@ -34,5 +34,5 @@ docker build --no-cache -t python-events-bot-image .
 ### Docker run
 
 ```
-docker run -d --name python-travel-bot --restart always python-events-bot-image
+docker run -d --name python-events-bot --restart always python-events-bot-image
 ```
