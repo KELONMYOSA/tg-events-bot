@@ -29,6 +29,7 @@ try:
     thread.start()
 
     logger.info("ITMO Events TG Bot Started")
-    asyncio.run(bot.polling())
+    while True:
+        asyncio.run(bot.polling())
 except Exception as e:
     logger.critical("Failed to import handlers", exc_info=e)
