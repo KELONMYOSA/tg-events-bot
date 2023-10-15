@@ -60,7 +60,7 @@ def push_events():
 
 
 def schedule_push_events():
-    schedule.every().day.at("11:00").do(push_events)
+    schedule.every().day.at("8:00").do(push_events)
 
     while True:
         schedule.run_pending()
