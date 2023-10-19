@@ -13,7 +13,7 @@ from src.tg_bot.utils.settings import notification_interval_keyboard, n_button2i
 def run(bot):
     user_logger = logging.getLogger('user_stat')
 
-    @bot.message_handler(commands=["settings"])
+    @bot.message_handler(commands=["my_settings"])
     async def settings(message: Message):
         user = User(tg_id=message.from_user.id, tg_username=message.from_user.username, tg_action="settings")
 

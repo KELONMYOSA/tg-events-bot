@@ -2,6 +2,7 @@ import datetime
 import logging
 import time
 
+import pytz as pytz
 import schedule as schedule
 from telebot import TeleBot
 
@@ -60,7 +61,7 @@ def push_events():
 
 
 def schedule_push_events():
-    schedule.every().day.at("8:00").do(push_events)
+    schedule.every().day.at(time_str="11:00", tz=pytz.timezone("Europe/Moscow")).do(push_events)
 
     while True:
         schedule.run_pending()

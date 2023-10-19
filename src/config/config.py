@@ -16,5 +16,8 @@ class Settings(BaseSettings):
     LOKI_USER: str
     LOKI_PASSWORD: str
 
+    FEEDBACK_LINK: str
+    DONATE_LINK: str
+
 
 settings = Settings()
