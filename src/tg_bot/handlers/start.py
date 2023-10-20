@@ -1,6 +1,6 @@
 import logging
 
-from telebot.types import Message, CallbackQuery
+from telebot.types import Message, CallbackQuery, ReplyKeyboardRemove
 
 from src.tg_bot.models.checkbox_keyboard import CheckboxKeyboard
 from src.tg_bot.models.dictionaries import topic2name, topic2domain
@@ -13,9 +13,9 @@ from src.tg_bot.utils.settings import notification_interval_keyboard, n_button2i
 def run(bot):
     user_logger = logging.getLogger('user_stat')
 
-    @bot.message_handler(commands=["start"])
+    @bot.message_handler(commands=["start", "reset"])
     async def start_bot(message: Message):
-        user = User(tg_id=message.from_user.id, tg_username=message.from_user.username, tg_action="start")
+        user = User(tg_id=message.from_user.id, tg_username=message.from_user.username, tg_action=message.text[1:])
 
         await bot.delete_message(message.chat.id, message.message_id)
 
@@ -103,16 +103,14 @@ def run(bot):
 Мероприятия по тематикам:
 🗂 Все темы - /all
 ❤️ Моя подборка - /my
-🧠 Образование - /edu
-💵 Бизнес, инновации - /money
-📈 Карьера - /career
-💃 Развлечения - /fun
-⚽️ Спорт - /sport
-👀 Остальное - /other
 
-Ты всегда можешь изменить настройки - /settings
+Ты всегда можешь изменить настройки - /my_settings
 А также посмотреть список источников - /sources
-            """
+
+Если тебе есть что нам сказать - /feedback
+Если вдруг захочешь нас поддержать 🥺👉👈 - /donate
+            """,
+            reply_markup=ReplyKeyboardRemove()
         )
 
         user_logger.info(f"new user configured notification schedule", extra=user.build_extra())
